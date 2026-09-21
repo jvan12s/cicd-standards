@@ -36,16 +36,16 @@ Audit-Trail, DSGVO-Guard, Security-Scans).
 
    jobs:
      ci:
-       uses: <DEIN-GITHUB-USER>/cicd-standards/.github/workflows/reusable-ci-node.yml@main
+       uses: jvan12s/cicd-standards/.github/workflows/reusable-ci-node.yml@main
        # für Python-Projekte stattdessen:
-       # uses: <DEIN-GITHUB-USER>/cicd-standards/.github/workflows/reusable-ci-python.yml@main
+       # uses: jvan12s/cicd-standards/.github/workflows/reusable-ci-python.yml@main
    ```
 
    Für Security-Scans zusätzlich:
 
    ```yaml
      security:
-       uses: <DEIN-GITHUB-USER>/cicd-standards/.github/workflows/reusable-security.yml@main
+       uses: jvan12s/cicd-standards/.github/workflows/reusable-security.yml@main
        with:
          language: javascript-typescript # oder "python"
        permissions:
@@ -54,7 +54,7 @@ Audit-Trail, DSGVO-Guard, Security-Scans).
    ```
 
 3. **`CODEOWNERS.template`** nach `CODEOWNERS` im Projekt kopieren,
-   `<DEIN-GITHUB-USER>` ersetzen.
+   `jvan12s` ersetzen.
 
 4. **`.github/dependabot.yml.template`** nach `.github/dependabot.yml`
    kopieren, nicht benötigte `package-ecosystem`-Blöcke entfernen.
@@ -73,10 +73,10 @@ Audit-Trail, DSGVO-Guard, Security-Scans).
 
 ## Wichtig nach dem ersten Push dieses Repos
 
-Die Default-Werte `<DEIN-GITHUB-USER>/cicd-standards` und `standards-ref: main`
+Die Default-Werte `jvan12s/cicd-standards` und `standards-ref: main`
 in den `reusable-ci-*.yml`-Workflows sind Platzhalter. Nach dem ersten Push:
 
-1. `<DEIN-GITHUB-USER>` in allen Vorlagen durch den echten GitHub-Namen ersetzen.
+1. `jvan12s` in allen Vorlagen durch den echten GitHub-Namen ersetzen.
 2. Sobald ein erstes stabiles Release getaggt ist (z. B. `v1`), `standards-ref`
    in konsumierenden Projekten auf diesen Tag/SHA pinnen statt auf `main` —
    das schließt die Lücke im Supply-Chain-Hardening (siehe Recherche zu

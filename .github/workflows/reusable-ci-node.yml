@@ -12,7 +12,7 @@ on:
           owner/repo of the cicd-standards repo, für den Nachlade-Schritt des
           DSGVO-Guard-Skripts. Nach dem ersten Push dieses Repos ersetzen.
         type: string
-        default: "<DEIN-GITHUB-USER>/cicd-standards"
+        default: "jvan12s/cicd-standards"
       standards-ref:
         description: >
           Git-Ref (Branch, Tag oder SHA) von cicd-standards, das geladen wird.
