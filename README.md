@@ -24,6 +24,11 @@ ohne Review mergen, CODEOWNERS-Einträge sind nur Dokumentation. CI-Checks
 laufen und zeigen grün/rot — der Merge-Klick entscheidet aber weiterhin der
 Mensch, nicht GitHub technisch.
 
+**Push-Konvention (verbindlich, auch ohne technische Durchsetzung):** Nie
+direkt auf `main` pushen — immer über einen Pull Request. Fehlende Branch
+Protection ist kein Freibrief für Direct-Pushes. Gilt für Menschen und für
+jeden Subagenten gleichermaßen (siehe `~/.claude/CLAUDE.md`).
+
 Falls das später wichtiger wird: GitHub Pro (4 $/Monat, Einzelaccount)
 schaltet Branch Protection frei. Secret-Scanning/CodeQL bräuchten zusätzlich
 eine Organisation mit Team-Plan — deutlich größerer Schritt, aktuell bewusst
