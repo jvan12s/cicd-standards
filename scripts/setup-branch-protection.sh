@@ -3,12 +3,20 @@
 # Projekt-Repos. Erfordert die GitHub CLI (`gh`), eingeloggt mit ausreichend
 # Rechten (`gh auth login`).
 #
+# WICHTIG: Für PRIVATE Repos verlangt die GitHub-API dafür GitHub Pro
+# (4 $/Monat, Einzelaccount) — auf dem kostenlosen Free-Plan schlägt der
+# Aufruf mit HTTP 403 "Upgrade to GitHub Pro or make this repository
+# public" fehl. Aktuell bewusst NICHT Teil des Standard-Setups (siehe
+# README.md, "Was auf dem Free-Plan nicht geht"). Dieses Skript hier liegt
+# bereit für den Fall, dass später auf Pro upgegradet wird oder ein Repo
+# öffentlich wird (dort funktioniert es ohne Zusatzkosten).
+#
 # Nutzung:
 #   ./setup-branch-protection.sh <owner>/<repo> [status-check-name ...]
 #
 # Beispiel:
-#   ./setup-branch-protection.sh jrvdm/introduction-website \
-#     "Reusable CI (Node) / build-test-lint"
+#   ./setup-branch-protection.sh jvan12s/introduction-website \
+#     "CI / ci / build-test-lint"
 
 set -euo pipefail
 
@@ -68,6 +76,6 @@ gh api \
 EOF
 
 echo "Fertig. Bitte in den Repo-Einstellungen unter Code security prüfen:"
-echo "  - Secret scanning + Push protection aktivieren"
-echo "  - Dependabot alerts + security updates aktivieren"
-echo "  - CodeQL Default Setup aktivieren (oder den reusable-security.yml Workflow einbinden)"
+echo "  - Dependabot alerts + security updates aktivieren (funktioniert auf jedem Plan)"
+echo "  - Secret scanning + Push protection + CodeQL: nur bei öffentlichen Repos"
+echo "    oder mit GitHub Advanced Security über eine Organisation (Team-Plan)"

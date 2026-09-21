@@ -1,7 +1,12 @@
 # Vorlage: nach CODEOWNERS im jeweiligen Projekt-Repo kopieren und
 # jvan12s durch den echten GitHub-Benutzernamen ersetzen.
 #
-# Diese Pfade erfordern IMMER eine menschliche Freigabe vor dem Merge,
+# HINWEIS: Auf dem aktuellen Free-Plan (private Repos) wird diese Datei
+# NICHT technisch erzwungen — dafür bräuchte es GitHub Pro plus die
+# "Require review from Code Owners"-Branch-Protection-Regel. Bis dahin ist
+# das hier reine Dokumentation, wer bei diesen Pfaden gefragt werden sollte.
+#
+# Diese Pfade SOLLTEN eine menschliche Freigabe vor dem Merge bekommen,
 # unabhängig davon, ob ein Subagent oder ein Mensch den PR erstellt hat
 # (Risikostufe 3-4 aus dem CI/CD-Konzept).
 

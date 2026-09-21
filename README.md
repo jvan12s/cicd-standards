@@ -2,9 +2,33 @@
 
 Wiederverwendbare CI/CD-Bausteine für alle Projekte, die über das
 Subagent-Team (frontend-dev / backend-dev / general-purpose) entstehen.
-Konzept-Hintergrund und Begründung: siehe der Plan, der dieses Repo
-hervorgebracht hat (GitHub Flow + risikogestaffelte Review-Gates,
-Audit-Trail, DSGVO-Guard, Security-Scans).
+
+**Wichtig:** Läuft aktuell auf einem **kostenlosen persönlichen GitHub-Account
+mit privaten Repos**. Das begrenzt, was technisch *erzwungen* werden kann —
+siehe unten "Was auf dem Free-Plan nicht geht". Was hier steht, ist der
+tatsächlich nutzbare Umfang, nicht der ursprünglich angedachte volle Umfang.
+
+## Was auf dem Free-Plan nicht geht (privates Repo, kein Team/Pro)
+
+| Baustein | Status | Warum |
+|---|---|---|
+| Branch Protection (Pflicht-Review, geschützter `main`, CODEOWNERS-Durchsetzung) | ❌ Nicht aktiv | Braucht GitHub Pro (4 $/Monat) für private Repos |
+| Secret Scanning + Push Protection | ❌ Nicht aktiv | Braucht GitHub Advanced Security — nur über eine Organisation mit Team-Plan |
+| CodeQL Code Scanning | ❌ Nicht aktiv | Gleiche Sperre wie oben |
+| Dependabot Alerts + Security Updates | ✅ Aktiv | Kostenlos für alle Repos/Pläne |
+| CI (Tests/Lint/Build, DSGVO-Guard) | ✅ Aktiv | Normale GitHub-Actions-Runs, keine Plan-Sperre |
+
+**Konsequenz:** "Kontrolliert" ist auf diesem Plan aktuell **Konvention, keine
+technische Durchsetzung**. `main` lässt sich direkt pushen, ein PR lässt sich
+ohne Review mergen, CODEOWNERS-Einträge sind nur Dokumentation. CI-Checks
+laufen und zeigen grün/rot — der Merge-Klick entscheidet aber weiterhin der
+Mensch, nicht GitHub technisch.
+
+Falls das später wichtiger wird: GitHub Pro (4 $/Monat, Einzelaccount)
+schaltet Branch Protection frei. Secret-Scanning/CodeQL bräuchten zusätzlich
+eine Organisation mit Team-Plan — deutlich größerer Schritt, aktuell bewusst
+nicht gegangen. `scripts/setup-branch-protection.sh` liegt für diesen Fall
+bereit, ist aber **nicht Teil des aktuellen Standard-Setups**.
 
 ## Was hier drin ist
 
@@ -12,18 +36,20 @@ Audit-Trail, DSGVO-Guard, Security-Scans).
   (frontend-dev-Output: Web, React, Astro, ...)
 - `.github/workflows/reusable-ci-python.yml` — CI für Python-Projekte
   (backend-dev-Output: FastAPI, ...)
-- `.github/workflows/reusable-security.yml` — CodeQL-Scan
 - `.github/dependabot.yml.template` — Dependabot-Vorlage (Actions + npm/pip)
-- `CODEOWNERS.template` — Pflicht-Review für sicherheitskritische Pfade
+- `CODEOWNERS.template` — dokumentiert Verantwortlichkeit für sensible Pfade
+  (aktuell nur Konvention, siehe oben)
 - `scripts/dsgvo_guard.py` — CI-Gate gegen personenbezogene Daten in
   Test-/Fixture-Dateien (E-Mails, IBANs, Telefonnummern), mit Tests unter
   `tests/`
-- `scripts/setup-branch-protection.sh` — setzt Branch-Protection-Regeln auf
-  `main` eines Projekt-Repos per GitHub CLI
+- `scripts/setup-branch-protection.sh` — optional, erst nutzbar mit GitHub
+  Pro (private Repos) oder bei öffentlichen Repos
 
 ## Ein neues Projekt einbinden
 
-1. **Repo hat `main` als Standardbranch**, kein direkter Push darauf.
+1. **Repo hat `main` als Standardbranch.** Direkter Push ist auf dem
+   Free-Plan technisch nicht verhindert — als Konvention trotzdem über PRs
+   arbeiten.
 
 2. **CI-Workflow im Projekt anlegen**, z. B. `.github/workflows/ci.yml`:
 
@@ -41,47 +67,26 @@ Audit-Trail, DSGVO-Guard, Security-Scans).
        # uses: jvan12s/cicd-standards/.github/workflows/reusable-ci-python.yml@main
    ```
 
-   Für Security-Scans zusätzlich:
-
-   ```yaml
-     security:
-       uses: jvan12s/cicd-standards/.github/workflows/reusable-security.yml@main
-       with:
-         language: javascript-typescript # oder "python"
-       permissions:
-         security-events: write
-         contents: read
-   ```
-
 3. **`CODEOWNERS.template`** nach `CODEOWNERS` im Projekt kopieren,
-   `jvan12s` ersetzen.
+   `jvan12s` ersetzen. Dient als Dokumentation, wird ohne GitHub Pro nicht
+   technisch erzwungen.
 
 4. **`.github/dependabot.yml.template`** nach `.github/dependabot.yml`
-   kopieren, nicht benötigte `package-ecosystem`-Blöcke entfernen.
+   kopieren, nicht benötigte `package-ecosystem`-Blöcke entfernen. Das ist
+   der einzige Security-Baustein, der auf dem Free-Plan tatsächlich aktiv
+   greift.
 
-5. **Branch Protection setzen:**
-
-   ```bash
-   ./scripts/setup-branch-protection.sh <owner>/<repo> "CI / ci"
-   ```
-
-6. In den Repo-Einstellungen (Settings → Code security) aktivieren:
-   Secret scanning, Push protection, Dependabot alerts + security updates.
-
-7. Optional, bei Projekten mit Abnahme-/Store-Zyklen (Mobile, Kundendeliverables):
+5. Optional, bei Projekten mit Abnahme-/Store-Zyklen (Mobile, Kundendeliverables):
    SemVer-Git-Tags für Releases statt eines vollen GitFlow-Branch-Modells.
 
 ## Wichtig nach dem ersten Push dieses Repos
 
-Die Default-Werte `jvan12s/cicd-standards` und `standards-ref: main`
-in den `reusable-ci-*.yml`-Workflows sind Platzhalter. Nach dem ersten Push:
-
-1. `jvan12s` in allen Vorlagen durch den echten GitHub-Namen ersetzen.
-2. Sobald ein erstes stabiles Release getaggt ist (z. B. `v1`), `standards-ref`
-   in konsumierenden Projekten auf diesen Tag/SHA pinnen statt auf `main` —
-   das schließt die Lücke im Supply-Chain-Hardening (siehe Recherche zu
-   SHA-Pinning von Third-Party-Actions, analog hier auf das eigene Repo
-   angewendet).
+Der Default-Wert `standards-ref: main` in den `reusable-ci-*.yml`-Workflows
+ist bewusst so belassen. Sobald ein erstes stabiles Release getaggt ist
+(z. B. `v1`), `standards-ref` in konsumierenden Projekten auf diesen Tag/SHA
+pinnen statt auf `main` — schließt die Lücke im Supply-Chain-Hardening
+(siehe SHA-Pinning der Third-Party-Actions in den Workflows selbst, analog
+hier auf das eigene Repo angewendet).
 
 ## DSGVO-Guard lokal testen
 
