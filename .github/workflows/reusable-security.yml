@@ -1,0 +1,35 @@
+name: Reusable Security Scan (CodeQL)
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        description: >
+          CodeQL-Sprachkennung, z. B. "javascript-typescript" oder "python".
+          Siehe https://docs.github.com/en/code-security/code-scanning
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
+        with:
+          languages: ${{ inputs.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5

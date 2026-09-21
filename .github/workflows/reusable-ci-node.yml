@@ -1,0 +1,65 @@
+name: Reusable CI (Node)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node.js version to use"
+        type: string
+        default: "20"
+      standards-repo:
+        description: >
+          owner/repo of the cicd-standards repo, für den Nachlade-Schritt des
+          DSGVO-Guard-Skripts. Nach dem ersten Push dieses Repos ersetzen.
+        type: string
+        default: "<DEIN-GITHUB-USER>/cicd-standards"
+      standards-ref:
+        description: >
+          Git-Ref (Branch, Tag oder SHA) von cicd-standards, das geladen wird.
+          Sobald ein erstes Release getaggt ist, hier auf einen Tag/SHA pinnen
+          statt auf "main".
+        type: string
+        default: "main"
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (if configured)
+        run: npm run lint --if-present
+
+      - name: Test (if configured)
+        run: npm test --if-present
+
+      - name: Build (if configured)
+        run: npm run build --if-present
+
+      - name: Checkout cicd-standards scripts
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          repository: ${{ inputs.standards-repo }}
+          ref: ${{ inputs.standards-ref }}
+          path: .cicd-standards
+          sparse-checkout: |
+            scripts
+          sparse-checkout-cone-mode: false
+
+      - name: DSGVO-Guard auf Test-/Fixture-Daten
+        run: python3 .cicd-standards/scripts/dsgvo_guard.py --root .

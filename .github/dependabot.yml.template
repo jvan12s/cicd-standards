@@ -1,0 +1,22 @@
+# Vorlage: nach ~/.github/dependabot.yml im jeweiligen Projekt kopieren
+# und den "package-ecosystem"-Block behalten, der zum Projekt passt.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Für Node/TypeScript-Projekte (frontend-dev):
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Für Python-Projekte (backend-dev):
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10

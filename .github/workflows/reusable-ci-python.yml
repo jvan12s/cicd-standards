@@ -1,0 +1,75 @@
+name: Reusable CI (Python)
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: "Python-Version"
+        type: string
+        default: "3.12"
+      standards-repo:
+        description: >
+          owner/repo von cicd-standards, für den Nachlade-Schritt des
+          DSGVO-Guard-Skripts. Nach dem ersten Push dieses Repos ersetzen.
+        type: string
+        default: "<DEIN-GITHUB-USER>/cicd-standards"
+      standards-ref:
+        description: >
+          Git-Ref (Branch, Tag oder SHA) von cicd-standards, das geladen wird.
+          Sobald ein erstes Release getaggt ist, hier auf einen Tag/SHA pinnen
+          statt auf "main".
+        type: string
+        default: "main"
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          if [ -f pyproject.toml ]; then pip install .; fi
+
+      - name: Lint (ruff, falls vorhanden)
+        run: |
+          if command -v ruff >/dev/null 2>&1 || pip show ruff >/dev/null 2>&1; then
+            ruff check .
+          else
+            echo "ruff nicht konfiguriert, überspringe Lint-Schritt"
+          fi
+
+      - name: Test (pytest, falls vorhanden)
+        run: |
+          if pip show pytest >/dev/null 2>&1; then
+            pytest
+          else
+            echo "pytest nicht konfiguriert, überspringe Test-Schritt"
+          fi
+
+      - name: Checkout cicd-standards scripts
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          repository: ${{ inputs.standards-repo }}
+          ref: ${{ inputs.standards-ref }}
+          path: .cicd-standards
+          sparse-checkout: |
+            scripts
+          sparse-checkout-cone-mode: false
+
+      - name: DSGVO-Guard auf Test-/Fixture-Daten
+        run: python3 .cicd-standards/scripts/dsgvo_guard.py --root .

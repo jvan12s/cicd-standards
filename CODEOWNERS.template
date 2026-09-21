@@ -1,0 +1,24 @@
+# Vorlage: nach CODEOWNERS im jeweiligen Projekt-Repo kopieren und
+# <DEIN-GITHUB-USER> durch den echten GitHub-Benutzernamen ersetzen.
+#
+# Diese Pfade erfordern IMMER eine menschliche Freigabe vor dem Merge,
+# unabhängig davon, ob ein Subagent oder ein Mensch den PR erstellt hat
+# (Risikostufe 3-4 aus dem CI/CD-Konzept).
+
+# CI/CD-Konfiguration selbst
+/.github/                @<DEIN-GITHUB-USER>
+/CODEOWNERS              @<DEIN-GITHUB-USER>
+
+# Auth- und Security-relevanter Code
+**/auth/                 @<DEIN-GITHUB-USER>
+**/security/             @<DEIN-GITHUB-USER>
+**/*secret*              @<DEIN-GITHUB-USER>
+
+# Datenbank-Migrationen
+**/migrations/           @<DEIN-GITHUB-USER>
+
+# Infrastruktur-Konfiguration
+**/infra/                @<DEIN-GITHUB-USER>
+**/*.tf                  @<DEIN-GITHUB-USER>
+docker-compose*.yml      @<DEIN-GITHUB-USER>
+Dockerfile*              @<DEIN-GITHUB-USER>
